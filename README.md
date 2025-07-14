@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Initial Setup: Mapbox & Firebase with Next.js
 
-## Getting Started
+This guide will help you configure Mapbox and Firebase for local development in this Next.js project.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. Environment Variables
+
+Create a `.env.local` file in the root of your project (this file should not be committed to version control).
+
+Add the following variables:
+
+```env
+# Mapbox
+NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_access_token
+
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You can find your Firebase config in your Firebase Console under Project Settings.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## 2. Install Dependencies
 
-## Learn More
+Install the required packages:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install firebase mapbox-gl
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If you use TypeScript, also install types:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+npm install --save-dev @types/mapbox-gl
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 3. Firebase Initialization
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Firebase is initialized in `lib/firebase.ts`. Make sure it uses the environment variables above. Example:
+
+```ts
+// lib/firebase.ts
+import { initializeApp, getApps } from "firebase/app";
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+export default app;
+```
+
+---
+
+## 4. Mapbox Usage
+
+When using Mapbox in your components, reference the public token via `process.env.NEXT_PUBLIC_MAPBOX_TOKEN`. Example:
+
+```js
+import mapboxgl from "mapbox-gl";
+
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+```
+
+---
+
+## 5. Next.js Notes
+
+- Always use the `NEXT_PUBLIC_` prefix for environment variables that need to be exposed to the browser.
+- Restart your dev server after adding or changing environment variables.
+
+---
+
+## 6. Further Reading
+
+- [Mapbox GL JS Docs](https://docs.mapbox.com/mapbox-gl-js/guides/)
+- [Firebase Web Setup](https://firebase.google.com/docs/web/setup)
+- [Next.js Environment Variables](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
+
+---
+
+**This is a temporary guide. Please update as the project evolves!**
